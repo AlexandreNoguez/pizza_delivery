@@ -1,9 +1,16 @@
 const express = require('express');
 const bcrypt = require('bcryptjs')
-const router = express.Router();
+const jwt = require('jsonwebtoken');
+const authConfig = require('../config/auth.json')
 
+const router = express.Router();
 const User = require('../models/Users');
 
+function generateToken(params = {}){
+    return jwt.sign(params, authConfig.secret, {
+        expiresIn: 40000,
+    });
+}
 
 router.post('/register', async (req, res) => {
     const  { email }  = req.body;
@@ -17,7 +24,7 @@ router.post('/register', async (req, res) => {
 
         user.email = undefined;
 
-        return res.send ({ user });
+        return res.send ({ user, token: generateToken({ id: user.id }), });
     } catch (err) {
         return res.status(400).send({error: 'Falha no registro'});
     }
@@ -33,12 +40,12 @@ router.post('/authenticate', async (req, res) => {
     }
     
     if(!await bcrypt.compare(password, user.password)){
-        return res.status(400).send({error: 'Cadastro inválido'});
+        return res.status(400).send({error: 'Senha inválida'});
     }
 
     user.cpf = undefined;
 
-    res.send({ user, });
+    res.send({ user, token: generateToken({ id: user.id }) });
 })
-// token: generateToken({ _id: user.id })
+
 module.exports = app => app.use('/auth', router);
