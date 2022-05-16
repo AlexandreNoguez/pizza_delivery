@@ -6,7 +6,7 @@ const User = require('../models/Users');
 
 router.post('/register', async (req, res) => {
     const  {cpf}  = req.body;
-    console.log(req.body)
+    
     try {
         
         if (await User.findOne({cpf})){
@@ -27,9 +27,9 @@ router.post('/authenticate', async (req, res) =>{
 
     const user = await User.findOne({ cpf }).select('+password');
 
-    // if(!user){
-    //     return res.status(400).send({error: 'Usuário não encontrado!'})
-    // }
+    if(!user){
+        return res.status(400).send({error: 'Usuário não encontrado!'})
+    }
     
     if(!await bcrypt.compare(password, user.password)){
         return res.status(400).send({error: 'Cadastro inválido'});
