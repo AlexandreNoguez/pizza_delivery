@@ -1,20 +1,21 @@
 const express = require('express');
+const bcrypt = require('bcryptjs')
 const router = express.Router();
 
 const User = require('../models/Users');
 
 
 router.post('/register', async (req, res) => {
-    const  {cpf}  = req.body;
-    
+    const  { email }  = req.body;
+    console.log(req.body)
     try {
         
-        if (await User.findOne({cpf})){
+        if (await User.findOne({ email })){
             return res.status(400).send({ error: 'Usuário já existente'})
         }
         const user = await User.create(req.body);
 
-        user.cpf = undefined;
+        user.email = undefined;
 
         return res.send ({ user });
     } catch (err) {
@@ -22,13 +23,13 @@ router.post('/register', async (req, res) => {
     }
 });
 
-router.post('/authenticate', async (req, res) =>{
-    const  { cpf, password }  = req.body;
+router.post('/authenticate', async (req, res) => {
+    const  { email, password }  = req.body;
 
-    const user = await User.findOne({ cpf }).select('+password');
+    const user = await User.findOne({ email }).select('+password');
 
     if(!user){
-        return res.status(400).send({error: 'Usuário não encontrado!'})
+        return res.status(400).send({ error: 'Usuário não encontrado!' })
     }
     
     if(!await bcrypt.compare(password, user.password)){
@@ -37,7 +38,7 @@ router.post('/authenticate', async (req, res) =>{
 
     user.cpf = undefined;
 
-    res.send({ user, token: generateToken({ _id: user.id })});
+    res.send({ user, });
 })
-
+// token: generateToken({ _id: user.id })
 module.exports = app => app.use('/auth', router);

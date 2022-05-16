@@ -6,9 +6,13 @@ const UserSchema = new mongoose.Schema({
         type: String,
         require: true,
     },
-    cpf: {
+    email: {
         type: String,
+        require: true,
         unique: true,
+    },
+    password: {
+        type: String,
         require: true,
         select: false,
     },
@@ -19,8 +23,8 @@ const UserSchema = new mongoose.Schema({
 });
 
 UserSchema.pre('save', async function (next){
-    const hash = await bcrypt.hash(this.cpf, 10);
-    this.cpf = hash;
+    const hash = await bcrypt.hash(this.password, 10);
+    this.password = hash;
 
     next();
 })
