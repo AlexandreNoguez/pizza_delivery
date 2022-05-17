@@ -2,8 +2,9 @@ const express = require('express');
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken');
 const authConfig = require('../config/auth.json');
-const Logs = require('../models/Logs');
 const router = express.Router();
+
+const Logs = require('../models/Logs');
 const User = require('../models/Users');
 
 function generateToken(params = {}){
