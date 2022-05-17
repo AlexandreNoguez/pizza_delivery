@@ -14,27 +14,31 @@ function generateToken(params = {}){
 }
 
 router.post('/register', async (req, res) => {
-    const  { email }  = req.body;
-    console.log(req.body)
+    
     try {
-        if (!email){
-            return res.status(400).send({ error: 'Digite um e-mail válido'})
-        }
+        const  { email }  = req.body;
+        // if (!email){
+        //     return res.status(400).send({ error: 'Digite um e-mail válido'})
+        // }
 
         if (await User.findOne({ email })){
             return res.status(400).send({ error: 'Usuário já existente'})
         }
+
         const user = await User.create(req.body);
 
         user.password = undefined;
-
+        
+        await Logs.create({loggedUser: user._id, title: "User created", type: 1})
         return res.send ({ user, token: generateToken({ id: user.id }), });
     } catch (err) {
+        await Logs.create({loggedUser: req.userId, title: "Error creating new user", type: 2})
         return res.status(400).send({error: 'Falha no registro'});
     }
 });
 
 router.post('/authenticate', async (req, res) => {
+    try {
     const  { email, password }  = req.body;
 
     const user = await User.findOne({ email }).select('+password');
@@ -50,11 +54,16 @@ router.post('/authenticate', async (req, res) => {
     user.password = undefined;
     await Logs.create({loggedUser: user._id, title: "User authenticated", type: 1})
     res.send({ user, token: generateToken({ id: user.id }) });
+} catch (err) {
+        await Logs.create({loggedUser: user._id, title: "Error authenticating user", type: 2})
+        return res.status(400).send({error: 'Falha no registro'});
+    }
+    
 })
 
 router.get('/:id', async (req, res) =>{
-    const userId = req.params.id;
     try {
+        const userId = req.params.id;
         const user = await User.findOne({_id: userId})
 
         if(!userId){
@@ -69,8 +78,7 @@ router.get('/:id', async (req, res) =>{
 })
 
 router.put('/:id', async (req, res) =>{
-    const userId = req.params.id;
-    
+    const userId = req.params;
     const { name, email, password } = req.body;
     
     const userDetails = {
@@ -78,18 +86,14 @@ router.put('/:id', async (req, res) =>{
         email,
         password,
     }
+    console.log(userDetails, userId, User)
     if(!userId){
-        return res.status(422).json({error: "Usuário não encontrada" })
+        return res.status(422).json({error: "Usuário(a) não encontrado(a)" })
     }
 
     try {
         const updateUser = await User.updateOne({_id: userId}, userDetails)
-        const updateUserName = await User.updateOne({name: userId}, {pass: userDetails})
-        const updateUserPassword = await User.updateOne({password: userId}, userDetails)
 
-        if(!userId){
-            return res.status(422).send({error: "Usuário não encontrada" })
-        }
         updateUser.save(userId)
         return res.status(200).send(userDetails)
         
@@ -112,22 +116,18 @@ router.get('/', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     const userId = req.params.id;
     
-    const user = await User.findOne({_id: userId})
+    const user = await User.findOne({ _id: userId })
     
     if(!user){
         return res.status(400).send({message: 'Usuário não encontrado'})
     }
-
+    
     try {
         await User.deleteOne({_id: userId})
         return res.status(200).send({message: 'Usuário removido com sucesso'})
     } catch (error) {
-        return res.status(400)
-        
+        return res.status(400).send({error: 'Falha ao remover'})
     }
 })
-
-
-
 
 module.exports = app => app.use('/auth', router);

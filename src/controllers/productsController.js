@@ -4,9 +4,12 @@ const router = express.Router();
 const Products = require('../models/Products');
 
 router.post('/', async (req, res) => {
-    const  { title }  = req.body;
+    const  { title, value }  = req.body;
 
     if(!title){
+        return res.status(400).send({ error: 'O campo deve ser preenchido corretamente.' })
+    }
+    if(!value){
         return res.status(400).send({ error: 'O campo deve ser preenchido corretamente.' })
     }
 

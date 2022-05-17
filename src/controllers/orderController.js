@@ -1,8 +1,8 @@
 const express = require('express')
 const authMiddleware = require('../middlewares/auth');
 
-const User = require('../models/Users')
-const Products = require('../models/Products')
+// const User = require('../models/Users')
+// const Products = require('../models/Products')
 const Order = require('../models/Orders')
 
 const router = express.Router();
@@ -36,7 +36,7 @@ router.post('/', async (req, res) => {
 router.get('/:orderId', async (req, res) => {
     try {
         const order = await Order.findById(req.params.orderId).populate('user').populate('pizzaList');
-        console.log(req.params)
+
         return res.send({ order })
 
     } catch (err) {
@@ -45,15 +45,28 @@ router.get('/:orderId', async (req, res) => {
     }
 });
 
-router.put('/orderId', async (req, res) => {
-    res.send({ok: true, user: req.userId});
+router.put('/:orderId', async (req, res) => {
+    try {
+        const { title, description, pizzaList } = req.body;
+
+        const order = await Order.findByIdAndUpdate(req.params.orderId, {
+            title, 
+            description, 
+            pizzaList, 
+            user: req.userId, 
+            status: '' },
+            {new: true});
+
+        return res.send({ order })
+    } catch (err) {
+        return res.status(400).send({error: 'Falha ao solicitar pedido'})
+    }
 });
 
 router.delete('/:orderId', async (req, res) => {
-    console.log(req.params)
     try {
-        await Order.findByIdAndRemove(req.params.order);
-        return res.send();
+        await Order.findByIdAndRemove(req.params.orderId);
+        return res.send({message: 'Pedido removido com sucesso'});
 
     } catch (err) {
         return res.status(400).send({error: 'Falha ao listar pedido'})
