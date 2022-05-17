@@ -7,6 +7,7 @@ const ProductsSchema = new mongoose.Schema({
     },
     value: {
         type: Number,
+        require: true,
     },
 }, {timestamps: true});
 

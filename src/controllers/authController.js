@@ -61,47 +61,6 @@ router.post('/authenticate', async (req, res) => {
     
 })
 
-router.get('/:id', async (req, res) =>{
-    try {
-        const userId = req.params.id;
-        const user = await User.findOne({_id: userId})
-
-        if(!userId){
-            return res.status(422).send({error: "Usuário não encontrado" })
-        }
-
-        return res.status(200).send(user)
-        
-    }   catch (error) {
-        return res.status(400)
-    }
-})
-
-router.put('/:id', async (req, res) =>{
-    const userId = req.params;
-    const { name, email, password } = req.body;
-    
-    const userDetails = {
-        name,
-        email,
-        password,
-    }
-    console.log(userDetails, userId, User)
-    if(!userId){
-        return res.status(422).json({error: "Usuário(a) não encontrado(a)" })
-    }
-
-    try {
-        const updateUser = await User.updateOne({_id: userId}, userDetails)
-
-        updateUser.save(userId)
-        return res.status(200).send(userDetails)
-        
-    }   catch (error) {
-        return res.status(400)
-    }
-})
-
 router.get('/', async (req, res) => {
     try {
         const listUsers = await User.find();
@@ -111,6 +70,51 @@ router.get('/', async (req, res) => {
         return res.status(400).send({error: 'Falha na busca'});
     }
 
+})
+
+router.get('/:id', async (req, res) =>{
+    const userId = req.params.id;
+    const user = await User.findOne({_id: userId})
+
+    if(!user && undefined && null){
+        return res.status(422).send({error: "Usuário não encontrado" })
+    }
+    
+    try {
+
+        return res.status(200).send(user)
+        
+    }   catch (error) {
+        return res.status(400)
+    }
+})
+
+router.put('/:id', async (req, res) =>{
+    const userId = req.params.id;
+    const { name, email, password } = req.body;
+    
+    const userDetails = {
+        name,
+        email,
+        password,
+    }
+    // if(!userId){
+        //     return res.status(422).json({error: "Usuário(a) não encontrado(a)" })
+        // }
+        
+        try {
+            const updateUser = await User.findByIdAndUpdate({
+                _id: userId},
+                userDetails,
+                {new: true}
+                )
+                userDetails.password = undefined
+                updateUser.save(userId)
+                return res.status(200).send(userDetails)
+        
+    }   catch (error) {
+        return res.status(400)
+    }
 })
 
 router.delete('/:id', async (req, res) => {

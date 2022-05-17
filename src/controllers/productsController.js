@@ -52,4 +52,19 @@ router.get('/:id', async (req, res) => {
     }
 })
 
+router.put('/:id', async (req, res) => {
+    try {
+        const { title, value } = req.body;
+
+        const pizza = await Order.findByIdAndUpdate(req.params.id, {
+            title, 
+            value, 
+        }, {new: true});
+
+        return res.send({ pizza })
+    } catch (err) {
+        return res.status(400).send({error: 'Falha ao atualiza cardápio'})
+    }
+});
+
 module.exports = app => app.use('/pizza', router);

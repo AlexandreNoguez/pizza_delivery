@@ -9,6 +9,18 @@ const router = express.Router();
 
 router.use(authMiddleware);
 
+router.post('/', async (req, res) => {
+    try {
+        const { title, description, pizzaList } = req.body;
+
+        const order = await Order.create({ title, description, pizzaList, user: req.userId });
+
+        return res.send({ order })
+    } catch (err) {
+        return res.status(400).send({error: 'Falha ao solicitar pedido'})
+    }
+});
+
 router.get('/', async (req, res) => {
     try {
         const order = await Order.find().populate('user');
@@ -21,17 +33,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.post('/', async (req, res) => {
-    try {
-        const { title, description, pizzaList } = req.body;
 
-        const order = await Order.create({ title, description, pizzaList, user: req.userId });
-
-        return res.send({ order })
-    } catch (err) {
-        return res.status(400).send({error: 'Falha ao solicitar pedido'})
-    }
-});
 
 router.get('/:orderId', async (req, res) => {
     try {
@@ -46,15 +48,20 @@ router.get('/:orderId', async (req, res) => {
 });
 
 router.put('/:orderId', async (req, res) => {
+    const { title, description, pizzaList } = req.body;
+
+    if(!title){
+        return res.status(400).send({error: 'Pedido não encontrado'})
+    }
+    
     try {
-        const { title, description, pizzaList } = req.body;
 
         const order = await Order.findByIdAndUpdate(req.params.orderId, {
             title, 
             description, 
             pizzaList, 
             user: req.userId, 
-            status: '' },
+            status: 'Em produção' },
             {new: true});
 
         return res.send({ order })
