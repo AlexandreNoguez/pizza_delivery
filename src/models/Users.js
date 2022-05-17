@@ -16,11 +16,11 @@ const UserSchema = new mongoose.Schema({
         require: true,
         select: false,
     },
-    createdAt: {
-        type: Date,
-        default: Date.now,
-    },
-});
+    roles: {
+        type: Number, //1- Client 2- Employ 3- Admin
+        require: true,
+    }  ,
+},{timestamps: true});
 
 UserSchema.pre('save', async function (next){
     const hash = await bcrypt.hash(this.password, 10);
