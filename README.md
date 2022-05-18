@@ -19,4 +19,4 @@
 * subir via MongoDB (Eu utilizei o Atlas)
 * npm install (Para instalar as dependências)
 * npm start
-* utilizar postman ou insominia pra inserir dados
+* utilizar postman ou insominia para inserir dados
