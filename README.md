@@ -9,13 +9,14 @@
 * Express
 * MongoDB
 * Mongoose 
-* bcryptjs
-* dotenv
-* jsonwebtoken
-* nodemon
+* Bcryptjs
+* Dotenv
+* Jsonwebtoken
+* Nodemon
 
 ## Para executar
 * clonar o diretorio: pizza_delivery
 * subir via MongoDB (Eu utilizei o Atlas)
-* run: npm install (Para instalar as dependências)
-* run: npm start
+* npm install (Para instalar as dependências)
+* npm start
+* utilizar postman ou insominia pra inserir dados
