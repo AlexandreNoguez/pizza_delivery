@@ -1,29 +1,30 @@
 const express = require('express');
+const checkRoles = require('../middlewares/checkRoles')
 
 const router = express.Router();
 const Products = require('../models/Products');
 
-router.post('/', async (req, res) => {
+router.post('/',  async (req, res) => {
     const  { title, value }  = req.body;
 
     if(!title){
-        return res.status(400).send({ error: 'O campo deve ser preenchido corretamente.' })
+        return res.status(400).send({ error: 'Invalid product name' })
     }
     if(!value){
-        return res.status(400).send({ error: 'O campo deve ser preenchido corretamente.' })
+        return res.status(400).send({ error: 'Invalid value' })
     }
 
     try {
         
         if (await Products.findOne({ title })){
-            return res.status(400).send({ error: 'Pizza já existente'})
+            return res.status(400).send({ error: 'Pizza already exists'})
         }
         const product = await Products.create(req.body);
 
 
         return res.send ({ product });
     } catch (err) {
-        return res.status(400).send({error: 'Falha no registro'});
+        return res.status(400).send({error: 'Failed on registration'});
     }
 });
 
@@ -33,7 +34,7 @@ router.get('/list', async (req, res) => {
         return res.status(200).send(product)
         
     } catch (err) {
-        return res.status(400).send({error: 'Falha na busca'});
+        return res.status(400).send({error: 'Failed listing products'});
     }
 
 })
@@ -44,27 +45,42 @@ router.get('/:id', async (req, res) => {
         const product = await Products.findById({_id: productId});
 
         if(!product){
-            return res.status(400).send({error: 'Produto não encontrado'})
+            return res.status(400).send({error: 'Product not found'})
         }
         return res.status(200).send(product);
     } catch (err) {
-        return res.status(400).send({error: 'Falha na busca'});
+        return res.status(400).send({error: 'Failed searching product'});
     }
 })
 
 router.put('/:id', async (req, res) => {
+    const { title, value } = req.body;
     try {
-        const { title, value } = req.body;
-
-        const pizza = await Order.findByIdAndUpdate(req.params.id, {
+        
+        const pizza = await Products.findByIdAndUpdate(req.params.id, {
             title, 
             value, 
         }, {new: true});
-
+        
         return res.send({ pizza })
     } catch (err) {
-        return res.status(400).send({error: 'Falha ao atualiza cardápio'})
+        return res.status(400).send({error: 'Failed to update menu'})
     }
 });
 
+router.delete('/:id', async (req, res) => {
+    const product = req.params.id
+    if(!product){
+        return res.status(400).send({error: 'Product not found on menu'})
+    }
+
+    try {
+        await Products.findByIdAndRemove(req.params.id);
+        return res.send({message: 'Product removed successfuly!'});
+
+    } catch (err) {
+        return res.status(400).send({error: 'Failed deleting product'})
+        
+    }
+});
 module.exports = app => app.use('/pizza', router);

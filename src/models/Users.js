@@ -17,9 +17,9 @@ const UserSchema = new mongoose.Schema({
         select: false,
     },
     roles: {
-        type: Number, //1- Client 2- Employ 3- Admin
+        type: [Number], //1- Client 2- Employe 3- Admin
         require: true,
-    }  ,
+    },
 },{timestamps: true});
 
 UserSchema.pre('save', async function (next){
@@ -27,7 +27,7 @@ UserSchema.pre('save', async function (next){
     this.password = hash;
 
     next();
-})
+});
 
 const User = mongoose.model('User', UserSchema);
 

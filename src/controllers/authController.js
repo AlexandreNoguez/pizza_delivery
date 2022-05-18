@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken');
 const authConfig = require('../config/auth.json');
 const router = express.Router();
+const {admin} = require('../middlewares/checkRoles')
 
 const Logs = require('../models/Logs');
 const User = require('../models/Users');
@@ -16,13 +17,20 @@ function generateToken(params = {}){
 router.post('/register', async (req, res) => {
     
     try {
-        const  { email }  = req.body;
-        // if (!email){
-        //     return res.status(400).send({ error: 'Digite um e-mail válido'})
-        // }
-
+        const  { name, email, password, roles, }  = req.body;
+        if (!roles){
+            return res.status(400).send({ error: 'Type a valid role'})
+        }
+        if (password <= 5){
+            return res.status(400).send({ error: 'Type a valid role'})
+        }
+        
+        if (!email){
+            return res.status(400).send({ error: 'Type a valid email'})
+        }
+        
         if (await User.findOne({ email })){
-            return res.status(400).send({ error: 'Usuário já existente'})
+            return res.status(400).send({ error: 'User already exists'})
         }
 
         const user = await User.create(req.body);
@@ -30,10 +38,14 @@ router.post('/register', async (req, res) => {
         user.password = undefined;
         
         await Logs.create({loggedUser: user._id, title: "User created", type: 1})
-        return res.send ({ user, token: generateToken({ id: user.id }), });
+        return res.send({ 
+            user, 
+            token: generateToken({ id: user.id }), 
+            message: 'User registered successfuly' 
+        });
+
     } catch (err) {
-        await Logs.create({loggedUser: req.userId, title: "Error creating new user", type: 2})
-        return res.status(400).send({error: 'Falha no registro'});
+        return res.status(400).send({error: 'Failed to register new user, try again.'});
     }
 });
 
@@ -44,19 +56,21 @@ router.post('/authenticate', async (req, res) => {
     const user = await User.findOne({ email }).select('+password');
 
     if(!user){
-        return res.status(400).send({ error: 'Usuário não encontrado!' })
+        return res.status(400).send({ error: 'User and password do not match' })
     }
     
-    if(!await bcrypt.compare(password, user.password)){
-        return res.status(400).send({error: 'Senha inválida'});
+    if(!(await bcrypt.compare(password, user.password))){
+        return res.status(400).send({error: 'User and password do not match'});
     }
 
     user.password = undefined;
     await Logs.create({loggedUser: user._id, title: "User authenticated", type: 1})
-    res.send({ user, token: generateToken({ id: user.id }) });
+    res.send({ user, 
+        token: generateToken({ id: user.id }),
+        message: 'User logged in successfuly' 
+    });
 } catch (err) {
-        await Logs.create({loggedUser: user._id, title: "Error authenticating user", type: 2})
-        return res.status(400).send({error: 'Falha no registro'});
+        return res.status(400).send({error: 'User and password do not match'});
     }
     
 })
@@ -67,9 +81,8 @@ router.get('/', async (req, res) => {
         return res.status(200).send(listUsers)
         
     } catch (err) {
-        return res.status(400).send({error: 'Falha na busca'});
+        return res.status(400).send({error: 'Failed listing all users'});
     }
-
 })
 
 router.get('/:id', async (req, res) =>{
@@ -77,7 +90,7 @@ router.get('/:id', async (req, res) =>{
     const user = await User.findOne({_id: userId})
 
     if(!user && undefined && null){
-        return res.status(422).send({error: "Usuário não encontrado" })
+        return res.status(422).send({error: 'User not found' })
     }
     
     try {
@@ -85,11 +98,12 @@ router.get('/:id', async (req, res) =>{
         return res.status(200).send(user)
         
     }   catch (error) {
-        return res.status(400)
+        return res.status(400).send({error: 'User not found'})
     }
 })
 
 router.put('/:id', async (req, res) =>{
+    try {
     const userId = req.params.id;
     const { name, email, password } = req.body;
     
@@ -102,18 +116,21 @@ router.put('/:id', async (req, res) =>{
         //     return res.status(422).json({error: "Usuário(a) não encontrado(a)" })
         // }
         
-        try {
-            const updateUser = await User.findByIdAndUpdate({
-                _id: userId},
-                userDetails,
-                {new: true}
-                )
-                userDetails.password = undefined
-                updateUser.save(userId)
-                return res.status(200).send(userDetails)
-        
-    }   catch (error) {
-        return res.status(400)
+        const updateUser = await User.findByIdAndUpdate({
+            _id: userId},
+            userDetails, 
+            {new: true}
+            )
+            userDetails.password = undefined
+            updateUser.save(userId)
+            // console.log(userDetails, updateUser, name, email, password)
+            return res.status(200).send({
+                updateUser, 
+                message: 'User details updated successfuly'
+            })
+            
+        }catch (err) {
+        return res.status(400).send({error: "Failed to update user's details"})
     }
 })
 
@@ -123,14 +140,14 @@ router.delete('/:id', async (req, res) => {
     const user = await User.findOne({ _id: userId })
     
     if(!user){
-        return res.status(400).send({message: 'Usuário não encontrado'})
+        return res.status(400).send({message: 'User not found'})
     }
     
     try {
         await User.deleteOne({_id: userId})
-        return res.status(200).send({message: 'Usuário removido com sucesso'})
-    } catch (error) {
-        return res.status(400).send({error: 'Falha ao remover'})
+        return res.status(200).send({message: 'User removed successfuly'})
+    } catch (err) {
+        return res.status(400).send({error: 'Failed to remove the user'})
     }
 })
 
