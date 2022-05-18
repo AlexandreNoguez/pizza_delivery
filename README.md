@@ -1,5 +1,5 @@
 # Pizza_delivery
-![gif do projeto rodando](https://drive.google.com/file/d/1dWtLaqOGam1YXSdrqauKs45osRrvA4gH/view?usp=sharing)
+![gif do projeto rodando](https://github.com/AlexandreNoguez/only-assets/blob/main/GifRepoFDTE.gif?raw=true)
 
 ## Um projeto desenvolvido durante uma semana para o desafio proposto pela FDTE, concorrendo a uma vaga de trainee.
 ### Esse projeto consiste em desenvolver um backend de restaurante que entrega pizzas.
