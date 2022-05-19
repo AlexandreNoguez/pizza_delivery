@@ -1,10 +1,7 @@
-const express = require('express');
-const checkRoles = require('../middlewares/checkRoles')
 
-const router = express.Router();
 const Products = require('../models/Products');
 
-router.post('/',  async (req, res) => {
+exports.registerNewProduct = async (req, res) => {
     const  { title, value }  = req.body;
 
     if(!title){
@@ -26,9 +23,9 @@ router.post('/',  async (req, res) => {
     } catch (err) {
         return res.status(400).send({error: 'Failed on registration'});
     }
-});
+}
 
-router.get('/list', async (req, res) => {
+exports.listAllProducts = async (req, res) => {
     try {
         const product = await Products.find();
         return res.status(200).send(product)
@@ -37,9 +34,9 @@ router.get('/list', async (req, res) => {
         return res.status(400).send({error: 'Failed listing products'});
     }
 
-})
+}
 
-router.get('/:id', async (req, res) => {
+exports.listProductById = async (req, res) => {
     const productId = req.params.id;
     try {
         const product = await Products.findById({_id: productId});
@@ -51,9 +48,9 @@ router.get('/:id', async (req, res) => {
     } catch (err) {
         return res.status(400).send({error: 'Failed searching product'});
     }
-})
+}
 
-router.put('/:id', async (req, res) => {
+exports.editProduct = async (req, res) => {
     const { title, value } = req.body;
     try {
         
@@ -66,9 +63,9 @@ router.put('/:id', async (req, res) => {
     } catch (err) {
         return res.status(400).send({error: 'Failed to update menu'})
     }
-});
+}
 
-router.delete('/:id', async (req, res) => {
+exports.deleteProduct = async (req, res) => {
     const product = req.params.id
     if(!product){
         return res.status(400).send({error: 'Product not found on menu'})
@@ -82,5 +79,4 @@ router.delete('/:id', async (req, res) => {
         return res.status(400).send({error: 'Failed deleting product'})
         
     }
-});
-module.exports = app => app.use('/pizza', router);
+}

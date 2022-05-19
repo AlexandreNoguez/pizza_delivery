@@ -1,10 +1,6 @@
-const express = require('express')
-
 const Feedback = require('../models/Feedback')
 
-const router = express.Router();
-
-router.post('/',  async (req, res) => {
+exports.sendFeedback = async (req, res) => {
     try {
         const { title, description, order } = req.body;
 
@@ -17,9 +13,9 @@ router.post('/',  async (req, res) => {
     } catch (err) {
         return res.status(400).send({error: 'failed to send feedback'})
     }
-});
+}
 
-router.get('/', async (req, res) => {
+exports.getFeedback = async (req, res) => {
     try {
         const feedback = await Feedback.find().populate(['author', 'order']);
         
@@ -28,7 +24,5 @@ router.get('/', async (req, res) => {
     } catch (err) {
         return res.status(400).send({error: 'Failed to list a feedback'})
     }
-});
+}
 
-
-module.exports = app => app.use('/feedback', router);

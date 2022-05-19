@@ -11,7 +11,6 @@ function generateToken(params = {}){
     });
 }
 
-
 exports.registerNewUser = async (req, res) => {
     
     try {
@@ -51,7 +50,7 @@ exports.registerNewUser = async (req, res) => {
     }
 }
 
-router.post('/authenticate', async (req, res) => {
+exports.authenticateUser = async (req, res) => {
     try {
     const  { email, password }  = req.body;
 
@@ -75,9 +74,9 @@ router.post('/authenticate', async (req, res) => {
         return res.status(400).send({error: 'User and password do not match'});
     }
     
-})
+}
 
-router.get('/', async (req, res) => {
+exports.listAllUsers = async (req, res) => {
     try {
         const listUsers = await User.find();
         return res.status(200).send(listUsers)
@@ -85,9 +84,10 @@ router.get('/', async (req, res) => {
     } catch (err) {
         return res.status(400).send({error: 'Failed listing all users'});
     }
-})
+}
 
-router.get('/:id', async (req, res) =>{
+
+exports.listUserById = async (req, res) =>{
     const userId = req.params.id;
     const user = await User.findOne({_id: userId})
 
@@ -102,9 +102,9 @@ router.get('/:id', async (req, res) =>{
     }   catch (error) {
         return res.status(400).send({error: 'User not found'})
     }
-})
+}
 
-router.put('/:id', async (req, res) =>{
+exports.editUser = async (req, res) =>{
     try {
     const userId = req.params.id;
     const { name, email, password } = req.body;
@@ -134,9 +134,9 @@ router.put('/:id', async (req, res) =>{
         }catch (err) {
         return res.status(400).send({error: "Failed to update user's details"})
     }
-})
+}
 
-router.delete('/:id', async (req, res) => {
+exports.deleteUser = async (req, res) => {
     const userId = req.params.id;
     
     const user = await User.findOne({ _id: userId })
@@ -151,6 +151,4 @@ router.delete('/:id', async (req, res) => {
     } catch (err) {
         return res.status(400).send({error: 'Failed to remove the user'})
     }
-})
-
-module.exports = app => app.use('/auth', router);
+}
