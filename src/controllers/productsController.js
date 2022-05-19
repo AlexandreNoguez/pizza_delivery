@@ -1,4 +1,3 @@
-
 const Products = require('../models/Products');
 
 exports.registerNewProduct = async (req, res) => {

@@ -121,11 +121,10 @@ exports.editUser = async (req, res) =>{
         const updateUser = await User.findByIdAndUpdate({
             _id: userId},
             userDetails, 
-            {new: true}
-            )
+            {new: true});
+
             userDetails.password = undefined
             updateUser.save(userId)
-            // console.log(userDetails, updateUser, name, email, password)
             return res.status(200).send({
                 updateUser, 
                 message: 'User details updated successfuly'

@@ -1,7 +1,7 @@
 const express = require('express');
 const routes = express.Router();
+const authMiddleware = require('../middlewares/auth')
 // const checkRoles = require('../middlewares/checkRoles')
-// const authMiddleware = require('../middlewares/auth')
 
 const { createOrder, 
     listOrders, 
@@ -12,6 +12,7 @@ const { createOrder,
 } = require('../controllers/orderController');
 
 // orderRoutes
+routes.use(authMiddleware)
 routes.post('/', createOrder);
 routes.get('/', listMyOrders);
 routes.get('/', listOrders);

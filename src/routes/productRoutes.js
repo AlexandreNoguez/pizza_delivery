@@ -1,7 +1,7 @@
 const express = require('express');
 const routes = express.Router();
-// const checkRoles = require('../middlewares/checkRoles')
-// const authMiddleware = require('../middlewares/auth')
+const authMiddleware = require('../middlewares/auth')
+const checkRoles = require('../middlewares/checkRoles')
 
 const { registerNewProduct, 
     listAllProducts, 
@@ -11,10 +11,11 @@ const { registerNewProduct,
 } = require('../controllers/productsController')
 
 // productsController
+routes.use(authMiddleware)
 routes.get('/list', listAllProducts);
 routes.post('/', registerNewProduct);
 routes.get('/:id', listProductById);
 routes.put('/:id', editProduct);
-routes.delete('/:id', deleteProduct);
+routes.delete('/:id', checkRoles, deleteProduct);
 
 module.exports = routes;

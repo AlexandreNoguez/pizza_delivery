@@ -19,7 +19,7 @@ const OrderSchema = new mongoose.Schema({
     }],
     status: {
         type: String,
-        default: 'Starting',
+        default: 'Awaiting payment',
         require: true,
     },
 }, {timestamps: true});

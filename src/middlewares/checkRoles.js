@@ -1,12 +1,10 @@
 const User = require('../models/Users')
 
 const checkRoles = async(req, res, next) => {
-    console.log('req.userId:', req.userId)
-
     const loggedUser = await User.findById(req.userId);
 
     switch (req.route.path) {
-        case '/orders/':
+        case '/':
             if (loggedUser.roles.includes(2) || loggedUser.roles.includes(3)) {
                 return next()
             } else {
@@ -14,7 +12,7 @@ const checkRoles = async(req, res, next) => {
             }
             break;
 
-        case '/orders/':
+        case '/':
             if (loggedUser.roles.includes(2) || loggedUser.roles.includes(3)) {
                 return next()
             } else {
