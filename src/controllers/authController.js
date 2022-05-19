@@ -1,9 +1,6 @@
-const express = require('express');
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken');
 const authConfig = require('../config/auth.json');
-const router = express.Router();
-const {admin} = require('../middlewares/checkRoles')
 
 const Logs = require('../models/Logs');
 const User = require('../models/Users');
@@ -14,10 +11,15 @@ function generateToken(params = {}){
     });
 }
 
-router.post('/register', async (req, res) => {
+
+exports.registerNewUser = async (req, res) => {
     
     try {
         const  { name, email, password, roles, }  = req.body;
+
+        if (!name){
+            return res.status(400).send({ error: 'Type a valid name'})
+        }
         if (!roles){
             return res.status(400).send({ error: 'Type a valid role'})
         }
@@ -47,7 +49,7 @@ router.post('/register', async (req, res) => {
     } catch (err) {
         return res.status(400).send({error: 'Failed to register new user, try again.'});
     }
-});
+}
 
 router.post('/authenticate', async (req, res) => {
     try {

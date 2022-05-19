@@ -1,11 +1,7 @@
-const express = require('express')
-const {admin} = require('../middlewares/checkRoles')
-
+const checkRoles = require('../middlewares/checkRoles')
 const Order = require('../models/Orders')
 
-const router = express.Router();
-
-router.post('/', async (req, res) => {
+exports.createOrder = async (req, res) => {
     try {
         const { title, description, pizzaList } = req.body;
 
@@ -18,11 +14,22 @@ router.post('/', async (req, res) => {
     } catch (err) {
         return res.status(400).send({error: 'Failed to register an order'})
     }
-});
+}
 
-router.get('/', async (req, res) => {
+exports.listMyOrders = async (req, res) => {
     try {
-        console.log(req.body.roles)
+        const order = await Order.find({user: req.userId}).populate(['user', 'pizzaList']);
+        
+        return res.send({ order })
+
+    } catch (err) {
+        return res.status(400).send({error: 'Failed to list orders'})
+        
+    }
+}
+
+exports.listOrders = async (req, res) => {
+    try {
         const order = await Order.find().populate(['user', 'pizzaList']);
         
         return res.send({ order })
@@ -31,11 +38,10 @@ router.get('/', async (req, res) => {
         return res.status(400).send({error: 'Failed to list orders'})
         
     }
-});
+}
 
 
-
-router.get('/:orderId', async (req, res) => {
+exports.getOrderById = async (req, res) => {
     try {
         const order = await Order.findById(req.params.orderId).populate(['user', 'pizzaList']);
 
@@ -45,9 +51,10 @@ router.get('/:orderId', async (req, res) => {
         return res.status(400).send({error: 'Failed to list an ID order'})
         
     }
-});
+}
 
-router.put('/:orderId', async (req, res) => {
+
+exports.editOrder = async (req, res) => {
     const { title, description, pizzaList, status } = req.body;
 
     // if(!title, description, pizzaList){
@@ -68,9 +75,9 @@ router.put('/:orderId', async (req, res) => {
     } catch (err) {
         return res.status(400).send({error: 'Failed ordering pizza'})
     }
-});
+}
 
-router.delete('/:orderId', async (req, res) => {
+exports.deleteOrder = async (req, res) => {
     try {
         await Order.findByIdAndRemove(req.params.orderId);
         return res.send({message: 'Order removed successfuly'});
@@ -79,6 +86,4 @@ router.delete('/:orderId', async (req, res) => {
         return res.status(400).send({error: 'Failed to list an order'})
         
     }
-});
-
-module.exports = app => app.use('/progress', router);
+}
