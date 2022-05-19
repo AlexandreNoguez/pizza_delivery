@@ -17,6 +17,6 @@ routes.get('/', listMyOrders);
 routes.get('/', listOrders);
 routes.get('/:orderId', getOrderById);
 routes.put('/:orderId', editOrder);
-routes.delete('/:orderId', checkRoles, deleteOrder);
+routes.delete('/:orderId', deleteOrder);
 
 module.exports = routes;
