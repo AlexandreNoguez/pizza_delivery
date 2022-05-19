@@ -1,4 +1,3 @@
-const checkRoles = require('../middlewares/checkRoles')
 const Order = require('../models/Orders')
 
 exports.createOrder = async (req, res) => {
